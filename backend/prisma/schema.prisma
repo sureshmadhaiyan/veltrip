@@ -1,0 +1,233 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Multi-tenant Company model
+model Company {
+  id            String   @id @default(uuid())
+  name          String
+  domain        String   @unique
+  subdomain     String?  @unique
+  theme         Json?    // Theme configuration (colors, logo, etc.)
+  razorpayKeyId String?
+  razorpayKeySecret String?
+  apiKey        String?  @unique
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users     User[]
+  drivers   Driver[]
+  bookings  Booking[]
+  payments  Payment[]
+  transactions Transaction[]
+
+  @@map("companies")
+}
+
+// User model with roles
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  firstName     String
+  lastName      String
+  phone         String?
+  role          UserRole @default(CUSTOMER)
+  companyId     String
+  isActive      Boolean  @default(true)
+  emailVerified Boolean  @default(false)
+  phoneVerified Boolean  @default(false)
+  lastLogin     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  bookings      Booking[]
+  payments      Payment[]
+  transactions  Transaction[]
+
+  @@index([email])
+  @@index([companyId])
+  @@index([role])
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  DRIVER
+  CUSTOMER
+}
+
+// Driver model
+model Driver {
+  id                String      @id @default(uuid())
+  userId            String      @unique
+  licenseNumber     String      @unique
+  vehicleType       String      // sedan, suv, hatchback, etc.
+  vehicleNumber     String      @unique
+  vehicleModel      String?
+  vehicleColor      String?
+  isApproved        Boolean     @default(false)
+  isOnline          Boolean     @default(false)
+  currentLatitude   Float?
+  currentLongitude  Float?
+  rating            Float       @default(0.0)
+  totalTrips        Int         @default(0)
+  companyId         String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  company           Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  bookings          Booking[]
+  earnings          Transaction[] @relation("DriverEarnings")
+
+  @@index([companyId])
+  @@index([isOnline])
+  @@index([isApproved])
+  @@index([currentLatitude, currentLongitude])
+  @@map("drivers")
+}
+
+// Booking model
+model Booking {
+  id                String          @id @default(uuid())
+  customerId        String
+  driverId          String?
+  companyId         String
+  pickupLatitude    Float
+  pickupLongitude   Float
+  pickupAddress     String
+  dropLatitude      Float
+  dropLongitude     Float
+  dropAddress       String
+  distance          Float           // in kilometers
+  estimatedFare     Float
+  actualFare        Float?
+  status            BookingStatus   @default(PENDING)
+  paymentStatus     PaymentStatus   @default(PENDING)
+  paymentMethod     PaymentMethod?
+  scheduledAt       DateTime?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  cancelledAt       DateTime?
+  cancellationReason String?
+  rating            Int?            // 1-5
+  feedback          String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  company           Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  customer          User            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  driver            Driver?         @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  payment           Payment?
+  transactions      Transaction[]
+
+  @@index([customerId])
+  @@index([driverId])
+  @@index([companyId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  RAZORPAY
+  WALLET
+  CASH
+}
+
+// Payment model (Razorpay integration)
+model Payment {
+  id                String          @id @default(uuid())
+  bookingId         String          @unique
+  userId            String
+  companyId         String
+  amount            Float
+  currency          String          @default("INR")
+  razorpayOrderId   String?         @unique
+  razorpayPaymentId String?         @unique
+  razorpaySignature String?
+  status            PaymentStatus   @default(PENDING)
+  method            PaymentMethod
+  metadata          Json?           // Additional payment data
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  company           Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking           Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([companyId])
+  @@index([razorpayOrderId])
+  @@index([razorpayPaymentId])
+  @@index([status])
+  @@map("payments")
+}
+
+// Transaction model (for wallet, earnings, etc.)
+model Transaction {
+  id            String            @id @default(uuid())
+  userId        String?
+  driverId      String?
+  bookingId     String?
+  companyId     String
+  type          TransactionType
+  amount        Float
+  status        TransactionStatus @default(PENDING)
+  description   String?
+  metadata      Json?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  company       Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user          User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  driver        Driver?           @relation("DriverEarnings", fields: [driverId], references: [id], onDelete: SetNull)
+  booking       Booking?          @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([driverId])
+  @@index([companyId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+enum TransactionType {
+  WALLET_CREDIT
+  WALLET_DEBIT
+  DRIVER_EARNING
+  COMMISSION
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
