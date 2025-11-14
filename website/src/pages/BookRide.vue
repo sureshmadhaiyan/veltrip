@@ -189,6 +189,30 @@
                 </div>
               </div>
 
+              <!-- Captcha -->
+              <div class="form-section">
+                <div class="captcha-container">
+                  <label for="captcha">Security Verification *</label>
+                  <div class="captcha-box">
+                    <div class="captcha-display">
+                      <span class="captcha-text">{{ captchaText }}</span>
+                      <button type="button" @click="generateCaptcha" class="refresh-captcha" title="Refresh">
+                        🔄
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      id="captcha"
+                      v-model="booking.captcha"
+                      required
+                      placeholder="Enter the code above"
+                      class="captcha-input"
+                    />
+                  </div>
+                  <small v-if="captchaError" class="error-text">{{ captchaError }}</small>
+                </div>
+              </div>
+
               <!-- Fare Estimate -->
               <div v-if="estimatedFare" class="fare-estimate">
                 <h3>Estimated Fare</h3>
@@ -265,7 +289,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import api from '../api/company'
@@ -286,6 +310,7 @@ const booking = ref({
   contactName: '',
   contactPhone: '',
   contactEmail: '',
+  captcha: '',
 })
 
 const loading = ref(false)
@@ -294,6 +319,8 @@ const success = ref(false)
 const bookingId = ref(null)
 const estimatedFare = ref(null)
 const estimatedDistance = ref(15) // Default 15 km
+const captchaText = ref('')
+const captchaError = ref('')
 
 const minDateTime = computed(() => {
   const now = new Date()
@@ -330,6 +357,27 @@ const calculateFare = () => {
   estimatedFare.value = total
 }
 
+const generateCaptcha = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let result = ''
+  for (let i = 0; i < 5; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  captchaText.value = result
+  booking.value.captcha = ''
+  captchaError.value = ''
+}
+
+const validateCaptcha = () => {
+  if (booking.value.captcha.toUpperCase() !== captchaText.value) {
+    captchaError.value = 'Invalid captcha code. Please try again.'
+    generateCaptcha()
+    return false
+  }
+  captchaError.value = ''
+  return true
+}
+
 // Watch for changes to recalculate fare
 watch([() => booking.value.vehicleType, () => booking.value.services], () => {
   calculateFare()
@@ -338,6 +386,10 @@ watch([() => booking.value.vehicleType, () => booking.value.services], () => {
 const handleBooking = async () => {
   if (!authStore.isAuthenticated) {
     router.push('/login')
+    return
+  }
+
+  if (!validateCaptcha()) {
     return
   }
 
@@ -360,6 +412,7 @@ const handleBooking = async () => {
 
     bookingId.value = response.data.id
     success.value = true
+    generateCaptcha()
     
     setTimeout(() => {
       router.push('/')
@@ -370,6 +423,10 @@ const handleBooking = async () => {
     loading.value = false
   }
 }
+
+onMounted(() => {
+  generateCaptcha()
+})
 </script>
 
 <style scoped>
@@ -699,6 +756,70 @@ const handleBooking = async () => {
   font-weight: bold;
 }
 
+.captcha-container {
+  margin-top: 1rem;
+}
+
+.captcha-box {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.captcha-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f3f4f6;
+  padding: 0.75rem 1rem;
+  border-radius: 5px;
+  border: 2px solid #e5e7eb;
+}
+
+.captcha-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.2rem;
+  color: var(--primary-color);
+  font-family: monospace;
+  user-select: none;
+}
+
+.refresh-captcha {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: transform 0.3s;
+}
+
+.refresh-captcha:hover {
+  transform: rotate(180deg);
+}
+
+.captcha-input {
+  flex: 1;
+  max-width: 200px;
+  padding: 0.875rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.captcha-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.error-text {
+  color: #dc2626;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
 @media (max-width: 968px) {
   .booking-wrapper {
     grid-template-columns: 1fr;
@@ -718,6 +839,15 @@ const handleBooking = async () => {
   
   .booking-info {
     position: static;
+  }
+  
+  .captcha-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .captcha-input {
+    max-width: 100%;
   }
 }
 </style>

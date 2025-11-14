@@ -72,6 +72,19 @@ onMounted(async () => {
   padding: 0 20px;
 }
 
+/* Mobile-first responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 10px;
+  }
+}
+
 section {
   padding: 4rem 0;
 }
@@ -122,5 +135,39 @@ a:hover {
 .btn-secondary:hover {
   background: var(--primary-color);
   color: #ffffff;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  section {
+    padding: 2.5rem 0;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.75rem;
+  }
+  
+  .btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  section {
+    padding: 2rem 0;
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
 }
 </style>

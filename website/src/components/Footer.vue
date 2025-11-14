@@ -17,6 +17,7 @@
           <h4>Quick Links</h4>
           <ul>
             <li><router-link to="/">Home</router-link></li>
+            <li><router-link to="/tours">Tour Packages</router-link></li>
             <li><router-link to="/tariff">Tariff</router-link></li>
             <li><router-link to="/contact">Contact</router-link></li>
             <li><router-link to="/book">Book a Ride</router-link></li>

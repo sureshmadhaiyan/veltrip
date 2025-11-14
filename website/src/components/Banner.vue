@@ -13,6 +13,16 @@
           <div class="container">
             <h1 class="banner-title">{{ slide.title }}</h1>
             <p class="banner-subtitle">{{ slide.subtitle }}</p>
+            <div class="banner-offers">
+              <div class="offer-badge offer-senior">
+                <span class="offer-icon">👴</span>
+                <span class="offer-text">10% OFF for Senior Citizens on Every Ride</span>
+              </div>
+              <div class="offer-badge offer-newuser">
+                <span class="offer-icon">🎉</span>
+                <span class="offer-text">10% OFF on First 3 Rides for New Users</span>
+              </div>
+            </div>
             <div class="banner-cta">
               <router-link to="/book" class="btn-primary">Book Your Ride Now</router-link>
               <router-link to="/tariff" class="btn-secondary">View Tariff</router-link>
@@ -145,7 +155,7 @@ onUnmounted(() => {
 .carousel-container {
   position: relative;
   width: 100%;
-  min-height: 500px;
+  min-height: 600px;
   overflow: hidden;
 }
 
@@ -157,7 +167,7 @@ onUnmounted(() => {
   height: 100%;
   opacity: 0;
   transition: opacity 0.8s ease-in-out;
-  min-height: 500px;
+  min-height: 600px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -194,7 +204,7 @@ onUnmounted(() => {
 }
 
 .banner-title {
-  font-size: 3.5rem;
+  font-size: 4rem;
   font-weight: 700;
   margin-bottom: 1rem;
   color: #ffffff;
@@ -203,11 +213,51 @@ onUnmounted(() => {
 }
 
 .banner-subtitle {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   margin-bottom: 2rem;
   color: #ffffff;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   animation: fadeInUp 1s ease;
+}
+
+.banner-offers {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  animation: fadeInUp 1.1s ease;
+}
+
+.offer-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  color: #1f2937;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  animation: pulse 2s infinite;
+}
+
+.offer-senior {
+  border: 2px solid #4CAF50;
+}
+
+.offer-newuser {
+  border: 2px solid #FFC107;
+}
+
+.offer-icon {
+  font-size: 1.5rem;
+}
+
+.offer-text {
+  white-space: nowrap;
 }
 
 .banner-cta {
@@ -216,6 +266,15 @@ onUnmounted(() => {
   justify-content: center;
   flex-wrap: wrap;
   animation: fadeInUp 1.2s ease;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .btn-primary,
@@ -324,27 +383,56 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .carousel-container,
   .carousel-slide {
-    min-height: 400px;
+    min-height: 500px;
   }
   
   .banner-title {
     font-size: 2.5rem;
+    padding: 0 1rem;
   }
   
   .banner-subtitle {
+    font-size: 1.2rem;
+    padding: 0 1rem;
+  }
+  
+  .banner-offers {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0 1rem;
+  }
+  
+  .offer-badge {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+  
+  .offer-text {
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+  }
+  
+  .offer-icon {
     font-size: 1.2rem;
   }
   
   .btn-primary,
   .btn-secondary {
-    padding: 0.875rem 2rem;
+    padding: 0.875rem 1.5rem;
     font-size: 0.9rem;
+    width: 100%;
+    max-width: 250px;
   }
   
   .carousel-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 2rem;
+    width: 35px;
+    height: 35px;
+    font-size: 1.5rem;
   }
   
   .carousel-btn.prev {
@@ -353,6 +441,30 @@ onUnmounted(() => {
   
   .carousel-btn.next {
     right: 10px;
+  }
+  
+  .carousel-indicators {
+    bottom: 15px;
+  }
+  
+  .carousel-indicators button {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .banner-title {
+    font-size: 1.75rem;
+  }
+  
+  .banner-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .offer-badge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.875rem;
   }
 }
 </style>

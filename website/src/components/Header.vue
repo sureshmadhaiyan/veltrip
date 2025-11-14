@@ -1,4 +1,5 @@
 <template>
+  <TopBar />
   <header class="header" :style="headerStyle">
     <div class="container">
       <nav class="navbar">
@@ -11,6 +12,7 @@
         
         <ul class="nav-menu" :class="{ active: menuOpen }">
           <li><router-link to="/" @click="closeMenu">Home</router-link></li>
+          <li><router-link to="/tours" @click="closeMenu">Tour Packages</router-link></li>
           <li><router-link to="/tariff" @click="closeMenu">Tariff</router-link></li>
           <li><router-link to="/contact" @click="closeMenu">Contact</router-link></li>
           <li v-if="!authStore.isAuthenticated">
@@ -37,6 +39,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCompanyStore } from '../stores/company'
 import { useAuthStore } from '../stores/auth'
+import TopBar from './TopBar.vue'
 
 const router = useRouter()
 const companyStore = useCompanyStore()
@@ -67,7 +70,7 @@ const handleLogout = () => {
 .header {
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 998;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
@@ -189,7 +192,7 @@ const handleLogout = () => {
   .nav-menu {
     position: fixed;
     left: -100%;
-    top: 70px;
+    top: 120px;
     flex-direction: column;
     background: rgba(255, 193, 7, 0.98);
     width: 100%;
