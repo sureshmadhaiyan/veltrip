@@ -130,6 +130,116 @@ export const premiumThemes = {
     textColor: '#1f2937',
     backgroundColor: '#ffffff',
   },
+
+  // Premium Luxury Gold
+  premiumLuxuryGold: {
+    name: 'Premium Luxury Gold',
+    primaryColor: '#D4AF37', // Gold
+    secondaryColor: '#228B22', // Forest Green
+    accentColor: '#FFD700', // Bright Gold
+    textColor: '#1f2937',
+    backgroundColor: '#ffffff',
+  },
+
+  // Elite Emerald
+  eliteEmerald: {
+    name: 'Elite Emerald',
+    primaryColor: '#FFB800', // Rich Gold
+    secondaryColor: '#00A86B', // Emerald
+    accentColor: '#FFD700', // Gold
+    textColor: '#1f2937',
+    backgroundColor: '#ffffff',
+  },
+
+  // Royal Yellow Green
+  royalYellowGreen: {
+    name: 'Royal Yellow Green',
+    primaryColor: '#FFC72C', // Royal Yellow
+    secondaryColor: '#2D5016', // Deep Green
+    accentColor: '#FFD700', // Gold
+    textColor: '#1f2937',
+    backgroundColor: '#ffffff',
+  },
+
+  // Premium Citrus
+  premiumCitrus: {
+    name: 'Premium Citrus',
+    primaryColor: '#FFA500', // Orange
+    secondaryColor: '#32CD32', // Lime Green
+    accentColor: '#FFD700', // Gold
+    textColor: '#1f2937',
+    backgroundColor: '#ffffff',
+  },
+
+  // Classic Gold Green
+  classicGoldGreen: {
+    name: 'Classic Gold Green',
+    primaryColor: '#F4C430', // Saffron Gold
+    secondaryColor: '#006400', // Dark Green
+    accentColor: '#FFD700', // Gold
+    textColor: '#1f2937',
+    backgroundColor: '#ffffff',
+  },
+
+  // Vibrant Sunshine
+  vibrantSunshine: {
+    name: 'Vibrant Sunshine',
+    primaryColor: '#FFD700', // Gold
+    secondaryColor: '#00FF7F', // Spring Green
+    accentColor: '#FFA500', // Orange
+    textColor: '#1f2937',
+    backgroundColor: '#ffffff',
+  },
+
+  // Luxury Amber Green
+  luxuryAmberGreen: {
+    name: 'Luxury Amber Green',
+    primaryColor: '#FF8C00', // Dark Orange
+    secondaryColor: '#228B22', // Forest Green
+    accentColor: '#FFD700', // Gold
+    textColor: '#1f2937',
+    backgroundColor: '#ffffff',
+  },
+
+  // Premium Canary
+  premiumCanary: {
+    name: 'Premium Canary',
+    primaryColor: '#FFEF00', // Canary Yellow
+    secondaryColor: '#00A550', // Green
+    accentColor: '#FFD700', // Gold
+    textColor: '#1f2937',
+    backgroundColor: '#ffffff',
+  },
+
+  // Elite Goldenrod
+  eliteGoldenrod: {
+    name: 'Elite Goldenrod',
+    primaryColor: '#DAA520', // Goldenrod
+    secondaryColor: '#2E8B57', // Sea Green
+    accentColor: '#FFD700', // Gold
+    textColor: '#1f2937',
+    backgroundColor: '#ffffff',
+  },
+
+  // Royal Citrus Green
+  royalCitrusGreen: {
+    name: 'Royal Citrus Green',
+    primaryColor: '#FF8C00', // Dark Orange
+    secondaryColor: '#00C957', // Emerald Green
+    accentColor: '#FFD700', // Gold
+    textColor: '#1f2937',
+    backgroundColor: '#ffffff',
+  },
+
+  // Premium Honey
+  premiumHoney: {
+    name: 'Premium Honey',
+    primaryColor: '#FFC125', // Golden Yellow
+    secondaryColor: '#3CB371', // Medium Sea Green
+    accentColor: '#FFD700', // Gold
+    textColor: '#1f2937',
+    backgroundColor: '#ffffff',
+  },
 };
 
 // Get default theme

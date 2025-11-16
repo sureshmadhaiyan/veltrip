@@ -9,6 +9,17 @@ export const useAuthStore = defineStore('auth', () => {
   const setUser = (userData) => {
     user.value = userData;
     isAuthenticated.value = !!userData;
+    if (userData) {
+      localStorage.setItem('user', JSON.stringify(userData));
+    }
+  };
+
+  const setToken = (token) => {
+    localStorage.setItem('accessToken', token);
+  };
+
+  const setRefreshToken = (token) => {
+    localStorage.setItem('refreshToken', token);
   };
 
   const loginUser = async (email, password) => {
@@ -44,6 +55,8 @@ export const useAuthStore = defineStore('auth', () => {
     registerUser,
     logoutUser,
     setUser,
+    setToken,
+    setRefreshToken,
   };
 });
 

@@ -73,6 +73,24 @@ export class PaymentService {
             pickupAddress: true,
             dropAddress: true,
             status: true,
+            estimatedFare: true,
+            actualFare: true,
+            driver: {
+              select: {
+                id: true,
+                vehicle: {
+                  select: {
+                    vehicleNumber: true,
+                  },
+                },
+                user: {
+                  select: {
+                    firstName: true,
+                    lastName: true,
+                  },
+                },
+              },
+            },
           },
         },
         user: {
@@ -80,12 +98,14 @@ export class PaymentService {
             id: true,
             firstName: true,
             lastName: true,
+            email: true,
           },
         },
         company: {
           select: {
             id: true,
             name: true,
+            domain: true,
           },
         },
       },
@@ -111,7 +131,11 @@ export class PaymentService {
             driver: {
               select: {
                 id: true,
-                vehicleNumber: true,
+                vehicle: {
+                  select: {
+                    vehicleNumber: true,
+                  },
+                },
               },
             },
           },

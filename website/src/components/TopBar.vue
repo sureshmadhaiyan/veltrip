@@ -29,12 +29,14 @@ const topBarStyle = computed(() => ({
 
 <style scoped>
 .top-bar {
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
   background: var(--secondary-color);
   color: #ffffff;
-  font-size: 0.9rem;
+  font-size: 1rem;
   z-index: 1000;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
 }
 
 .top-bar-content {
@@ -58,11 +60,23 @@ const topBarStyle = computed(() => ({
 }
 
 .phone-icon {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
+  animation: pulse-phone 2s infinite;
+}
+
+@keyframes pulse-phone {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .phone-number {
-  font-size: 1rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .top-bar-actions {
@@ -103,8 +117,8 @@ const topBarStyle = computed(() => ({
 
 @media (max-width: 768px) {
   .top-bar {
-    font-size: 0.8rem;
-    padding: 0.4rem 0;
+    font-size: 0.9rem;
+    padding: 0.6rem 0;
   }
   
   .top-bar-content {
@@ -114,7 +128,11 @@ const topBarStyle = computed(() => ({
   }
   
   .phone-number {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
+  }
+  
+  .phone-icon {
+    font-size: 1.3rem;
   }
   
   .top-bar-actions {

@@ -26,20 +26,37 @@ export class BookingService {
     const ratePerKm = 10; // Rate per kilometer
     const estimatedFare = baseFare + distance * ratePerKm;
 
-    // Find nearest available driver
-    const availableDrivers = await this.driverService.findAvailableDrivers(
-      companyId,
-      createBookingDto.pickupLatitude,
-      createBookingDto.pickupLongitude,
-    );
+    // Find nearest available driver (only if not provided)
+    let driverId: string | null = null;
+    if (!createBookingDto.driverId) {
+      const availableDrivers = await this.driverService.findAvailableDrivers(
+        companyId,
+        createBookingDto.pickupLatitude,
+        createBookingDto.pickupLongitude,
+      );
+      driverId = availableDrivers.length > 0 ? availableDrivers[0].id : null;
+    } else {
+      driverId = createBookingDto.driverId;
+    }
 
-    const driverId = availableDrivers.length > 0 ? availableDrivers[0].id : null;
+    // If vehicleId is provided and driver doesn't have a vehicle, assign it
+    if (createBookingDto.vehicleId && driverId) {
+      const driver = await this.prisma.driver.findUnique({
+        where: { id: driverId },
+      });
+      if (driver && !driver.vehicleId) {
+        await this.prisma.driver.update({
+          where: { id: driverId },
+          data: { vehicleId: createBookingDto.vehicleId },
+        });
+      }
+    }
 
     const booking = await this.prisma.booking.create({
       data: {
         customerId: userId,
         driverId,
-        companyId,
+        companyId: createBookingDto.companyId || companyId,
         pickupLatitude: createBookingDto.pickupLatitude,
         pickupLongitude: createBookingDto.pickupLongitude,
         pickupAddress: createBookingDto.pickupAddress,
@@ -47,8 +64,12 @@ export class BookingService {
         dropLongitude: createBookingDto.dropLongitude,
         dropAddress: createBookingDto.dropAddress,
         distance,
+        startingKm: createBookingDto.startingKm,
+        endingKm: createBookingDto.endingKm,
         estimatedFare,
         scheduledAt: createBookingDto.scheduledAt ? new Date(createBookingDto.scheduledAt) : null,
+        startedAt: createBookingDto.startedAt ? new Date(createBookingDto.startedAt) : null,
+        completedAt: createBookingDto.completedAt ? new Date(createBookingDto.completedAt) : null,
         status: BookingStatus.PENDING,
       },
       include: {
@@ -100,8 +121,12 @@ export class BookingService {
         driver: {
           select: {
             id: true,
-            vehicleNumber: true,
-            vehicleType: true,
+            vehicle: {
+              select: {
+                vehicleNumber: true,
+                vehicleType: true,
+              },
+            },
           },
         },
         company: {
@@ -163,6 +188,38 @@ export class BookingService {
 
     const updateData: any = { ...updateBookingDto };
 
+    // Recalculate distance and fare if pickup/drop locations changed
+    if (
+      updateBookingDto.pickupLatitude &&
+      updateBookingDto.pickupLongitude &&
+      updateBookingDto.dropLatitude &&
+      updateBookingDto.dropLongitude
+    ) {
+      const distance = this.calculateDistance(
+        updateBookingDto.pickupLatitude,
+        updateBookingDto.pickupLongitude,
+        updateBookingDto.dropLatitude,
+        updateBookingDto.dropLongitude,
+      );
+      updateData.distance = distance;
+      
+      // Recalculate estimated fare
+      const baseFare = 50;
+      const ratePerKm = 10;
+      updateData.estimatedFare = baseFare + distance * ratePerKm;
+    }
+
+        // Handle date conversions
+        if (updateBookingDto.scheduledAt) {
+          updateData.scheduledAt = new Date(updateBookingDto.scheduledAt);
+        }
+        if (updateBookingDto.startedAt) {
+          updateData.startedAt = new Date(updateBookingDto.startedAt);
+        }
+        if (updateBookingDto.completedAt) {
+          updateData.completedAt = new Date(updateBookingDto.completedAt);
+        }
+
     // Handle status transitions
     if (updateBookingDto.status) {
       if (updateBookingDto.status === BookingStatus.IN_PROGRESS && !booking.startedAt) {
@@ -191,7 +248,11 @@ export class BookingService {
         driver: {
           select: {
             id: true,
-            vehicleNumber: true,
+            vehicle: {
+              select: {
+                vehicleNumber: true,
+              },
+            },
           },
         },
       },
@@ -212,6 +273,62 @@ export class BookingService {
     return this.update(id, {
       status: BookingStatus.CANCELLED,
       cancellationReason: reason,
+    });
+  }
+
+  async confirm(id: string) {
+    const booking = await this.findOne(id);
+
+    if (booking.status !== BookingStatus.PENDING) {
+      throw new BadRequestException('Only pending bookings can be confirmed');
+    }
+
+    return this.update(id, {
+      status: BookingStatus.ACCEPTED,
+    });
+  }
+
+  async assignDriver(id: string, driverId: string) {
+    const booking = await this.findOne(id);
+
+    // Verify driver exists and belongs to same company
+    const driver = await this.prisma.driver.findUnique({
+      where: { id: driverId },
+    });
+
+    if (!driver) {
+      throw new NotFoundException('Driver not found');
+    }
+
+    if (driver.companyId !== booking.companyId) {
+      throw new BadRequestException('Driver must belong to the same company');
+    }
+
+    if (!driver.isApproved || !driver.isOnline) {
+      throw new BadRequestException('Driver must be approved and online');
+    }
+
+    return this.update(id, {
+      driverId,
+      status: booking.status === BookingStatus.PENDING ? BookingStatus.ACCEPTED : booking.status,
+    });
+  }
+
+  async remove(id: string, user: any) {
+    const booking = await this.findOne(id);
+
+    // Only allow deletion if booking is cancelled or pending
+    if (booking.status === BookingStatus.COMPLETED || booking.status === BookingStatus.IN_PROGRESS) {
+      throw new BadRequestException('Cannot delete completed or in-progress bookings');
+    }
+
+    // Check permissions
+    if (user.role !== 'ADMIN' && booking.companyId !== user.companyId) {
+      throw new BadRequestException('You can only delete bookings from your own company');
+    }
+
+    return this.prisma.booking.delete({
+      where: { id },
     });
   }
 

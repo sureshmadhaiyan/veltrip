@@ -88,12 +88,6 @@ const contactAddress = computed(() => companyStore.company?.address || 'Your Cit
   margin-top: 4rem;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
 .footer-content {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -126,15 +120,18 @@ const contactAddress = computed(() => companyStore.company?.address || 'Your Cit
   margin-bottom: 0.5rem;
 }
 
-.footer-section a {
-  color: #ffffff;
-  text-decoration: none;
+.footer-section a,
+.footer-section a.router-link-active,
+.footer-section a.router-link-exact-active {
+  color: #ffffff !important;
+  text-decoration: none !important;
   opacity: 0.9;
   transition: opacity 0.3s;
 }
 
 .footer-section a:hover {
   opacity: 1;
+  color: #ffffff !important;
 }
 
 .social-links {
@@ -148,15 +145,23 @@ const contactAddress = computed(() => companyStore.company?.address || 'Your Cit
   background: rgba(255, 255, 255, 0.1);
   border-radius: 5px;
   transition: all 0.3s;
+  color: #ffffff !important;
+  text-decoration: none !important;
 }
 
 .social-link:hover {
   background: rgba(255, 255, 255, 0.2);
+  color: #ffffff !important;
 }
 
 .contact-info li {
   margin-bottom: 0.75rem;
   line-height: 1.6;
+}
+
+.contact-info a {
+  color: #ffffff !important;
+  text-decoration: none !important;
 }
 
 .contact-info strong {
@@ -180,14 +185,15 @@ const contactAddress = computed(() => companyStore.company?.address || 'Your Cit
 }
 
 .footer-links a {
-  color: #ffffff;
-  text-decoration: none;
+  color: #ffffff !important;
+  text-decoration: none !important;
   opacity: 0.9;
   transition: opacity 0.3s;
 }
 
 .footer-links a:hover {
   opacity: 1;
+  color: #ffffff !important;
 }
 
 @media (max-width: 768px) {

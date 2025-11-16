@@ -9,6 +9,9 @@ import { UserModule } from './user/user.module';
 import { DriverModule } from './driver/driver.module';
 import { BookingModule } from './booking/booking.module';
 import { PaymentModule } from './payment/payment.module';
+import { AdminModule } from './admin/admin.module';
+import { VehicleModule } from './vehicle/vehicle.module';
+import { UploadController } from './upload/upload.controller';
 
 @Module({
   imports: [
@@ -23,8 +26,10 @@ import { PaymentModule } from './payment/payment.module';
     DriverModule,
     BookingModule,
     PaymentModule,
+    AdminModule,
+    VehicleModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, UploadController],
   providers: [AppService],
 })
 export class AppModule {}

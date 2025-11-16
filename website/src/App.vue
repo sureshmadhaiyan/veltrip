@@ -1,21 +1,35 @@
 <template>
   <div id="app" :style="appStyle">
-    <Header />
+    <!-- Public Header/Footer - Only show on non-admin routes -->
+    <template v-if="!isAdminRoute">
+      <TopBar />
+      <Header />
+    </template>
     <main class="main-content">
       <router-view />
     </main>
-    <Footer />
+    <Footer v-if="!isAdminRoute" />
+    <!-- Floating Admin Button for admin users on public pages -->
+    <AdminFloatingButton />
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCompanyStore } from './stores/company'
 import { applyTheme as applyThemeUtil } from './utils/themeColors'
+import TopBar from './components/TopBar.vue'
 import Header from './components/Header.vue'
 import Footer from './components/Footer.vue'
+import AdminFloatingButton from './components/AdminFloatingButton.vue'
 
+const route = useRoute()
 const companyStore = useCompanyStore()
+
+const isAdminRoute = computed(() => {
+  return route.path.startsWith('/admin')
+})
 
 const appStyle = computed(() => {
   const theme = companyStore.theme
@@ -34,8 +48,11 @@ const applyTheme = () => {
 }
 
 onMounted(async () => {
-  await companyStore.detectCompany()
-  applyTheme()
+  // Only detect company on non-admin routes
+  if (!isAdminRoute.value) {
+    await companyStore.detectCompany()
+    applyTheme()
+  }
 })
 </script>
 
@@ -86,7 +103,7 @@ onMounted(async () => {
 }
 
 section {
-  padding: 4rem 0;
+  padding: 3.5rem 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -140,7 +157,7 @@ a:hover {
 /* Mobile optimizations */
 @media (max-width: 768px) {
   section {
-    padding: 2.5rem 0;
+    padding: 2rem 0;
   }
   
   h1 {

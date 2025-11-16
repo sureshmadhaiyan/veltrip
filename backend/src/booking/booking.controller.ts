@@ -29,7 +29,15 @@ export class BookingController {
   @Post()
   @ApiOperation({ summary: 'Create a new booking' })
   create(@Body() createBookingDto: CreateBookingDto, @CurrentUser() user: any) {
-    return this.bookingService.create(createBookingDto, user.userId, user.companyId);
+    // If admin/company provides customerId, use it; otherwise use current user
+    const customerId = (user.role === UserRole.ADMIN || user.role === UserRole.COMPANY) && createBookingDto.customerId
+      ? createBookingDto.customerId
+      : user.userId;
+    // If admin provides companyId, use it; otherwise use current user's company
+    const companyId = (user.role === UserRole.ADMIN) && createBookingDto.companyId
+      ? createBookingDto.companyId
+      : user.companyId;
+    return this.bookingService.create(createBookingDto, customerId, companyId);
   }
 
   @Get()
@@ -61,6 +69,30 @@ export class BookingController {
     @CurrentUser() user: any,
   ) {
     return this.bookingService.cancel(id, reason, user.userId);
+  }
+
+  @Post(':id/confirm')
+  @Roles(UserRole.ADMIN, UserRole.COMPANY)
+  @ApiOperation({ summary: 'Confirm booking' })
+  confirm(@Param('id') id: string) {
+    return this.bookingService.confirm(id);
+  }
+
+  @Post(':id/assign-driver')
+  @Roles(UserRole.ADMIN, UserRole.COMPANY)
+  @ApiOperation({ summary: 'Assign driver to booking' })
+  assignDriver(
+    @Param('id') id: string,
+    @Body('driverId') driverId: string,
+  ) {
+    return this.bookingService.assignDriver(id, driverId);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.ADMIN, UserRole.COMPANY)
+  @ApiOperation({ summary: 'Delete booking' })
+  remove(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.bookingService.remove(id, user);
   }
 }
 

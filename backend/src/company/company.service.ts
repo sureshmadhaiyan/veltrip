@@ -13,9 +13,21 @@ export class CompanyService {
     });
   }
 
-  async findAll() {
+  async findAll(includeInactive = false) {
     return this.prisma.company.findMany({
-      where: { isActive: true },
+      where: includeInactive ? {} : { isActive: true },
+      include: {
+        _count: {
+          select: {
+            users: true,
+            drivers: true,
+            bookings: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 

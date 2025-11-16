@@ -1,12 +1,16 @@
 <template>
-  <TopBar />
   <header class="header" :style="headerStyle">
     <div class="container">
       <nav class="navbar">
         <div class="logo">
           <router-link to="/" class="logo-link">
             <img v-if="companyStore.theme.logo" :src="companyStore.theme.logo" alt="Logo" class="logo-img" />
-            <span class="logo-text">{{ companyStore.companyName }}</span>
+            <svg v-else class="logo-svg" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+              <text x="10" y="35" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#1f2937">Veltrip</text>
+              <circle cx="170" cy="25" r="8" fill="#667eea"/>
+              <path d="M165 25 L170 20 L175 25 L170 30 Z" fill="#ffffff"/>
+            </svg>
+            <span class="logo-text">{{ companyStore.companyName || 'Veltrip' }}</span>
           </router-link>
         </div>
         
@@ -15,6 +19,9 @@
           <li><router-link to="/tours" @click="closeMenu">Tour Packages</router-link></li>
           <li><router-link to="/tariff" @click="closeMenu">Tariff</router-link></li>
           <li><router-link to="/contact" @click="closeMenu">Contact</router-link></li>
+          <li v-if="authStore.isAuthenticated && (authStore.user?.role === 'ADMIN' || authStore.user?.role === 'COMPANY')">
+            <router-link to="/admin/dashboard" @click="closeMenu" class="btn-admin">Admin Dashboard</router-link>
+          </li>
           <li v-if="!authStore.isAuthenticated">
             <router-link to="/login" @click="closeMenu" class="btn-login">Login</router-link>
           </li>
@@ -39,7 +46,6 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCompanyStore } from '../stores/company'
 import { useAuthStore } from '../stores/auth'
-import TopBar from './TopBar.vue'
 
 const router = useRouter()
 const companyStore = useCompanyStore()
@@ -69,8 +75,8 @@ const handleLogout = () => {
 <style scoped>
 .header {
   position: sticky;
-  top: 0;
-  z-index: 998;
+  top: 50px;
+  z-index: 999;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
@@ -99,6 +105,11 @@ const handleLogout = () => {
 }
 
 .logo-img {
+  height: 40px;
+  width: auto;
+}
+
+.logo-svg {
   height: 40px;
   width: auto;
 }
@@ -139,6 +150,21 @@ const handleLogout = () => {
 
 .btn-login:hover {
   background: #4CAF50;
+  color: #ffffff;
+}
+
+.btn-admin {
+  background: rgba(102, 126, 234, 0.2);
+  padding: 0.5rem 1.5rem;
+  border-radius: 5px;
+  border: 2px solid #667eea;
+  color: #1f2937;
+  transition: all 0.3s;
+  font-weight: 600;
+}
+
+.btn-admin:hover {
+  background: #667eea;
   color: #ffffff;
 }
 

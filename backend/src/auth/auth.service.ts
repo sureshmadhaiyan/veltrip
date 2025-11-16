@@ -5,6 +5,8 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { RegisterCompanyDto } from './dto/register-company.dto';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -134,6 +136,79 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');
     }
+  }
+
+  async registerCompany(registerCompanyDto: RegisterCompanyDto) {
+    const { email, password, firstName, lastName, phone, companyName, domain, subdomain } = registerCompanyDto;
+
+    // Check if user already exists
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    // Check if company domain already exists
+    const existingCompany = await this.prisma.company.findFirst({
+      where: {
+        OR: [
+          { domain },
+          ...(subdomain ? [{ subdomain }] : []),
+        ],
+      },
+    });
+
+    if (existingCompany) {
+      throw new ConflictException('Company with this domain or subdomain already exists');
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create company first
+    const company = await this.prisma.company.create({
+      data: {
+        name: companyName,
+        domain,
+        subdomain: subdomain || null,
+      },
+    });
+
+    // Create user with COMPANY role
+    const user = await this.prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        phone,
+        role: UserRole.COMPANY,
+        companyId: company.id,
+      },
+      include: { company: true },
+    });
+
+    const tokens = await this.generateTokens(user.id, user.email, user.role);
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        companyId: user.companyId,
+        company: {
+          id: company.id,
+          name: company.name,
+          domain: company.domain,
+          subdomain: company.subdomain,
+        },
+      },
+      ...tokens,
+    };
   }
 
   private async generateTokens(userId: string, email: string, role: string) {

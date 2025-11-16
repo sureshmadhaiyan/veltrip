@@ -155,7 +155,7 @@ onUnmounted(() => {
 .carousel-container {
   position: relative;
   width: 100%;
-  min-height: 600px;
+  min-height: 850px;
   overflow: hidden;
 }
 
@@ -167,7 +167,7 @@ onUnmounted(() => {
   height: 100%;
   opacity: 0;
   transition: opacity 0.8s ease-in-out;
-  min-height: 600px;
+  min-height: 850px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -184,7 +184,7 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 100%);
   z-index: 1;
 }
 
@@ -192,7 +192,7 @@ onUnmounted(() => {
   position: relative;
   z-index: 2;
   width: 100%;
-  padding: 2rem 0;
+  padding: 4rem 0;
   text-align: center;
   color: #ffffff;
 }
@@ -204,20 +204,22 @@ onUnmounted(() => {
 }
 
 .banner-title {
-  font-size: 4rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
+  font-size: 5rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
   color: #ffffff;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
   animation: fadeInUp 0.8s ease;
+  line-height: 1.2;
 }
 
 .banner-subtitle {
-  font-size: 1.75rem;
-  margin-bottom: 2rem;
+  font-size: 2.25rem;
+  margin-bottom: 2.5rem;
   color: #ffffff;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
   animation: fadeInUp 1s ease;
+  font-weight: 500;
 }
 
 .banner-offers {
@@ -383,16 +385,16 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .carousel-container,
   .carousel-slide {
-    min-height: 500px;
+    min-height: 650px;
   }
   
   .banner-title {
-    font-size: 2.5rem;
+    font-size: 3rem;
     padding: 0 1rem;
   }
   
   .banner-subtitle {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     padding: 0 1rem;
   }
   

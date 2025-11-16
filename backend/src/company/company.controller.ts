@@ -36,7 +36,8 @@ export class CompanyController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all companies' })
   findAll() {
-    return this.companyService.findAll();
+    // Admin can see all companies (including inactive), others see only active
+    return this.companyService.findAll(true);
   }
 
   @Get('domain/:domain')

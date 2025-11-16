@@ -18,6 +18,15 @@ model Company {
   subdomain     String?  @unique
   theme         Json?    // Theme configuration (colors, logo, etc.)
   razorpayKeyId String?
+  pan           String?  // PAN number
+  gstin         String?  // GSTIN number
+  address       String?  // Company address
+  city          String?
+  state         String?
+  pincode       String?
+  phone         String?  // Company phone
+  email         String?  // Company email
+  contactPerson String?  // Contact person name
   razorpayKeySecret String?
   apiKey        String?  @unique
   isActive      Boolean  @default(true)
@@ -26,6 +35,7 @@ model Company {
 
   users     User[]
   drivers   Driver[]
+  vehicles  Vehicle[]
   bookings  Booking[]
   payments  Payment[]
   transactions Transaction[]
@@ -46,11 +56,17 @@ model User {
   isActive      Boolean  @default(true)
   emailVerified Boolean  @default(false)
   phoneVerified Boolean  @default(false)
+  photo         String?  // Profile photo URL
+  gender        Gender?
+  dateOfBirth   DateTime?
+  otpCode       String?  // OTP for phone verification
+  otpExpiresAt  DateTime? // OTP expiration time
   lastLogin     DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  driver        Driver?  @relation("DriverUser")
   bookings      Booking[]
   payments      Payment[]
   transactions  Transaction[]
@@ -63,8 +79,15 @@ model User {
 
 enum UserRole {
   ADMIN
+  COMPANY
   DRIVER
   CUSTOMER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
 
 // Driver model
@@ -72,10 +95,10 @@ model Driver {
   id                String      @id @default(uuid())
   userId            String      @unique
   licenseNumber     String      @unique
-  vehicleType       String      // sedan, suv, hatchback, etc.
-  vehicleNumber     String      @unique
-  vehicleModel      String?
-  vehicleColor      String?
+  vehicleId         String?    // Reference to Vehicle
+  photo             String      // Driver photo URL (required)
+  gender            Gender      // Gender (required)
+  dateOfBirth       DateTime    // Date of birth (required)
   isApproved        Boolean     @default(false)
   isOnline          Boolean     @default(false)
   currentLatitude   Float?
@@ -87,6 +110,8 @@ model Driver {
   updatedAt         DateTime    @updatedAt
 
   company           Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user              User        @relation("DriverUser", fields: [userId], references: [id], onDelete: Cascade)
+  vehicle           Vehicle?    @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
   bookings          Booking[]
   earnings          Transaction[] @relation("DriverEarnings")
 
@@ -94,7 +119,40 @@ model Driver {
   @@index([isOnline])
   @@index([isApproved])
   @@index([currentLatitude, currentLongitude])
+  @@index([vehicleId])
   @@map("drivers")
+}
+
+// Vehicle model
+model Vehicle {
+  id                String      @id @default(uuid())
+  vehicleNumber     String      @unique
+  vehicleType       String      // sedan, suv, hatchback, luxury, van, etc.
+  vehicleModel      String?
+  vehicleColor      String?
+  year              Int?        // Manufacturing year
+  registrationDate  DateTime?
+  insuranceExpiry   DateTime?
+  permitExpiry      DateTime?
+  status            VehicleStatus @default(ACTIVE)
+  companyId         String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  company           Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  drivers           Driver[]
+
+  @@index([companyId])
+  @@index([status])
+  @@index([vehicleNumber])
+  @@map("vehicles")
+}
+
+enum VehicleStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+  RETIRED
 }
 
 // Booking model
@@ -110,14 +168,16 @@ model Booking {
   dropLongitude     Float
   dropAddress       String
   distance          Float           // in kilometers
+  startingKm        Float?          // Starting odometer reading
+  endingKm          Float?          // Ending odometer reading
   estimatedFare     Float
   actualFare        Float?
   status            BookingStatus   @default(PENDING)
   paymentStatus     PaymentStatus   @default(PENDING)
   paymentMethod     PaymentMethod?
-  scheduledAt       DateTime?
-  startedAt         DateTime?
-  completedAt       DateTime?
+  scheduledAt       DateTime?       // Trip scheduled start time
+  startedAt         DateTime?       // Trip actual start time
+  completedAt       DateTime?       // Trip end time
   cancelledAt       DateTime?
   cancellationReason String?
   rating            Int?            // 1-5

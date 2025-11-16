@@ -277,13 +277,13 @@ const testimonials = ref([
 
 .features,
 .services {
-  padding: 4rem 0;
+  padding: 5rem 0;
 }
 
 .section-title {
   text-align: center;
   font-size: 2.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
   color: var(--text-color);
 }
 
@@ -291,13 +291,13 @@ const testimonials = ref([
 .services-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .feature-card,
 .service-card {
   background: #ffffff;
-  padding: 2rem;
+  padding: 1.75rem;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
@@ -332,7 +332,7 @@ const testimonials = ref([
 .stats {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
   color: #ffffff;
-  padding: 4rem 0;
+  padding: 5rem 0;
 }
 
 .stats-grid {
@@ -358,7 +358,7 @@ const testimonials = ref([
 }
 
 .tour-preview {
-  padding: 4rem 0;
+  padding: 5rem 0;
   background: #f9fafb;
 }
 
@@ -454,7 +454,7 @@ const testimonials = ref([
 }
 
 .daily-deals {
-  padding: 4rem 0;
+  padding: 5rem 0;
   background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
 }
 
@@ -546,7 +546,7 @@ const testimonials = ref([
 }
 
 .testimonials {
-  padding: 4rem 0;
+  padding: 5rem 0;
   background: #f9fafb;
 }
 

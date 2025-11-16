@@ -43,3 +43,8 @@ export const getAccessToken = () => {
   return localStorage.getItem('accessToken');
 };
 
+export default {
+  post: api.post,
+  get: api.get,
+};
+

@@ -9,6 +9,57 @@ const api = axios.create({
   },
 });
 
+// Add request interceptor to include auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to handle token refresh
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // If 401 and not already retried, try to refresh token
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (refreshToken) {
+          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+            refreshToken,
+          });
+          
+          const { accessToken } = response.data;
+          localStorage.setItem('accessToken', accessToken);
+          
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        // Refresh failed, redirect to login
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        window.location.href = '/admin/login';
+        return Promise.reject(refreshError);
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
 // Get company by subdomain or domain
 export const getCompanyByDomain = async (domain) => {
   try {
@@ -40,6 +91,22 @@ export const getCompanyById = async (id) => {
     console.error('Error fetching company:', error);
     return null;
   }
+};
+
+const API_URL = API_BASE_URL;
+
+const config = {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}`,
+  },
+};
+
+// Payment API methods
+export const paymentApi = {
+  getAll: () => api.get('/payments'),
+  getById: (id) => api.get(`/payments/${id}`),
+  create: (data) => api.post('/payments', data),
+  verify: (id, data) => api.post(`/payments/${id}/verify`, data),
 };
 
 export default api;

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsBoolean, IsNumber, IsString } from 'class-validator';
+import { IsOptional, IsBoolean, IsNumber, IsString, IsEnum, IsDateString } from 'class-validator';
+import { Gender } from '@prisma/client';
 
 export class UpdateDriverDto {
   @ApiProperty({ required: false })
@@ -22,19 +23,29 @@ export class UpdateDriverDto {
   @IsNumber()
   currentLongitude?: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ example: 'vehicle-uuid', required: false })
   @IsOptional()
   @IsString()
-  vehicleType?: string;
+  vehicleId?: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ example: 'https://example.com/photo.jpg', required: false })
   @IsOptional()
   @IsString()
-  vehicleModel?: string;
+  photo?: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ enum: Gender, required: false })
+  @IsOptional()
+  @IsEnum(Gender)
+  gender?: Gender;
+
+  @ApiProperty({ example: '1990-01-15', required: false })
+  @IsOptional()
+  @IsDateString()
+  dateOfBirth?: string;
+
+  @ApiProperty({ example: 'DL123456789', required: false })
   @IsOptional()
   @IsString()
-  vehicleColor?: string;
+  licenseNumber?: string;
 }
 
